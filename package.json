@@ -18,5 +18,8 @@
   "bugs": {
     "url": "https://github.com/JamesCWong/backend/issues"
   },
-  "homepage": "https://github.com/JamesCWong/backend#readme"
+  "homepage": "https://github.com/JamesCWong/backend#readme",
+  "dependencies": {
+    "pg": "^8.16.3"
+  }
 }
