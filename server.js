@@ -47,7 +47,7 @@ class Server {
             //Handle empty requests
             res.writeHead(400);
             return res.end('Request contained no data.');
-        } else if (!query.toLowerCase().startsWith('select')) {
+        } else if (!query.trim().toLowerCase().startsWith('select')) {
             //Not allowed to attempt requests that don't SELECT for GET.
             res.writeHead(403);
             return res.end('Only SELECT allowed for GET requests.')
@@ -80,7 +80,7 @@ class Server {
             //Handle empty requests
             res.writeHead(400);
             return res.end('Request contained no data.');
-        } else if (!query.toLowerCase().startsWith('insert')) {
+        } else if (!query.trim().toLowerCase().startsWith('insert')) {
             //Not allowed to attempt requests that don't insert for post.
             res.writeHead(403);
             return res.end('Only INSERT allowed for POST requests.')
