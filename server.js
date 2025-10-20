@@ -7,7 +7,7 @@ class Server {
 
         this.db = new MyDB();
 
-        this.server = this.http.createServer((req, res) => {
+        this.server = this.http.createServer(async (req, res) => {
             res.setHeader('Access-Control-Allow-Origin', '*');
             res.setHeader('Access-Control-Allow-Methods', 'GET, POST');
             res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
