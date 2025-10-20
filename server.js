@@ -39,7 +39,7 @@ class Server {
         });
     }
 
-    handleGet(req, res, parsedUrl) {
+    async handleGet(req, res, parsedUrl) {
         const query = parsedUrl.query.q;
 
         //Error handling for GET
@@ -53,20 +53,17 @@ class Server {
             return res.end('Only SELECT allowed for GET requests.')
         }
 
-        this.db.query(query, (err, results) => {
-            if(err) {
-                //Internal server error
-                res.writeHead(500);
-                return res.end('Database Error: ' + err.message);
-            }
-
-            //If it works
-            res.writeHead(200, { 'Content-Type': 'application/json'});
-            res.end(JSON.stringify(results));
-        });
+        try {
+            const result = await this.db.query(query);
+            res.writeHead(200, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify(result.rows));
+        } catch (err) {
+            res.writeHead(500);
+            res.end('Database Error: ' + err.message);
+        }
     }
 
-    handlePost(req, res, body) {
+    async handlePost(req, res, body) {
         let parsed;
         try {
             parsed = JSON.parse(body);
@@ -89,49 +86,54 @@ class Server {
             return res.end('Only INSERT allowed for POST requests.')
         }
 
-        this.db.query(query, (err) => {
-            if (err) {
-                //Internal Server Error
-                res.writeHead(500);
-                return res.end('Database Error: ' + err.message);
-            }
-
+        try {
+            await this.db.query(query);
             res.writeHead(200);
             res.end('Successfully inserted into database');
-        })
+        } catch (err) {
+            res.writeHead(500);
+            res.end('Database Error: ' + err.message);
+        }
     }
     
 }
 
 class MyDB {
     constructor() {
-        this.mysql = require('mysql');
+        const { Pool } = require('pg');
 
-        this.db = mysql.createConnection({
-            host: process.env.DB_HOST,
-            user: process.env.DB_USER,
-            password: process.env.DB_PASS,
-            database: process.env.DB_NAME
+        this.db = new Pool ({
+            host: process.env.PGHOST,
+            port: process.env.PGPORT,
+            user: process.env.PGUSER,
+            password: process.env.PGPASSWORD,
+            database: process.env.PGDATABASE,
+            //Needed for Render
+            ssl: { rejectUnauthorized: false}
         });
 
-        this.db.connect(err =>{
-            if(err) throw err;
-
-            //The SQL query that will attempt to create a database upon loading.
-            const createTable = `
-            CREATE TABLE IF NOT EXISTS patients (
-                patientid INT(11) PRIMARY KEY AUTO_INCREMENT,
-                name VARCHAR(100),
-                dateOfBirth DATETIME
-            ) ENGINE=InnoDB;
-            `;
-
-            this.db.query(createTable);
-        });
+        this.init();
     }
 
-    query(...args) {
-        this.db.query(...args);
+    async init() {
+        const createTable = `
+            CREATE TABLE IF NOT EXISTS patients (
+                patientid SERIAL PRIMARY KEY,
+                name VARCHAR(100),
+                dateOfBirth TIMESTAMP
+            );
+        `;
+
+        try {
+            await this.pool.query(createTable);
+            console.log("Table created");
+        } catch (err) {
+            console.error("Error creating table:", err.message);
+        }
+    }
+
+    async query(...args) {
+        return this.pool.query(...args);
     }
 }
 
