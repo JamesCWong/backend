@@ -102,7 +102,7 @@ class MyDB {
     constructor() {
         const { Pool } = require('pg');
 
-        this.db = new Pool ({
+        this.pool = new Pool ({
             host: process.env.PGHOST,
             port: process.env.PGPORT,
             user: process.env.PGUSER,
