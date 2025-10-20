@@ -41,13 +41,14 @@ class Server {
 
     async handleGet(req, res, parsedUrl) {
         const query = parsedUrl.query.q;
+        const trimmedQuery = query.trim().toLowerCase();
 
         //Error handling for GET
         if(!query) {
             //Handle empty requests
             res.writeHead(400);
             return res.end('Request contained no data.');
-        } else if (!query.trim().toLowerCase().startsWith('select')) {
+        } else if (!trimmedQuery.startsWith('select')) {
             //Not allowed to attempt requests that don't SELECT for GET.
             res.writeHead(403);
             return res.end('Only SELECT allowed for GET requests.')
@@ -74,13 +75,14 @@ class Server {
         }
 
         const query = parsed.query;
+        const trimmedQuery = query.trim().toLowerCase();
 
         //Error handling for POST
         if(!query) {
             //Handle empty requests
             res.writeHead(400);
             return res.end('Request contained no data.');
-        } else if (!query.trim().toLowerCase().startsWith('insert')) {
+        } else if (!trimmedQuery.startsWith('insert')) {
             //Not allowed to attempt requests that don't insert for post.
             res.writeHead(403);
             return res.end('Only INSERT allowed for POST requests.')
