@@ -9,7 +9,7 @@ class Server {
 
         this.server = this.http.createServer(async (req, res) => {
             res.setHeader('Access-Control-Allow-Origin', '*');
-            res.setHeader('Access-Control-Allow-Methods', 'GET, POST');
+            res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
             res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
 
             if (req.method === 'OPTIONS') {
@@ -41,7 +41,7 @@ class Server {
 
     async handleGet(req, res, parsedUrl) {
         const query = parsedUrl.query.q;
-        const trimmedQuery = query.trim().toLowerCase();
+        const trimmedQuery = (query || '').trim().toLowerCase();
 
         //Error handling for GET
         if(!query) {
@@ -58,6 +58,9 @@ class Server {
             const result = await this.db.query(query);
             res.writeHead(200, { 'Content-Type': 'application/json' });
             res.end(JSON.stringify(result.rows));
+            console.log(result);
+            let display = document.createElement("div");
+            display.innerHTML = result;
         } catch (err) {
             res.writeHead(500);
             res.end('Database Error: ' + err.message);
@@ -75,7 +78,7 @@ class Server {
         }
 
         const query = parsed.query;
-        const trimmedQuery = query.trim().toLowerCase();
+        const trimmedQuery = (query || '').trim().toLowerCase();
 
         //Error handling for POST
         if(!query) {
